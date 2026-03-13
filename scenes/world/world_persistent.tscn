@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://b8x1kq8jvq8y"]
+
+[ext_resource type="Script" path="res://scripts/core/game_manager.gd" id="1_game_manager"]
+[ext_resource type="PackedScene" uid="uid://player_placeholder" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://region_native_starter" path="res://scenes/world/regions/native_starter.tscn" id="3_native_starter"]
+
+[node name="WorldPersistent" type="Node3D"]
+script = ExtResource("1_game_manager")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="Lighting" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 10, 0)
+shadow_enabled = true
+shadow_bias = 0.05
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+
+[node name="Regions" type="Node3D" parent="."]
+
+[node name="NativeStarter" parent="Regions" instance=ExtResource("3_native_starter")]
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="StreamingManager" type="Node" parent="."]
+script = ExtResource("1_streaming_manager")
+streaming_radius = 256.0
+chunk_size = 128.0

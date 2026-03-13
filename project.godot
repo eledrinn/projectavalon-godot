@@ -1,0 +1,56 @@
+; Engine Configuration File.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Project Avalon"
+config/description="MMORPG with seamless world, stylized alien aesthetic, classic MMO soul"
+config/version="0.1.0"
+config/tags=PackedStringArray("mmo", "rpg", "multiplayer")
+run/main_scene="res://scenes/world/world_persistent.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+boot_splash/bg_color=Color(0.141176, 0.141176, 0.141176, 1)
+config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[dotnet]
+
+project/assembly_name="Project Avalon"
+
+[filesystem]
+
+import/fbx/enabled=false
+
+[layer_names]
+
+3d_physics/layer_1="World"
+3d_physics/layer_2="Player"
+3d_physics/layer_3="NPC"
+3d_physics/layer_4="Interactable"
+3d_physics/layer_5="Combat"
+
+[network]
+
+limits/debugger/max_chars_per_second=10000000
+limits/debugger/max_queued_messages=10000
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="forward_plus"
+anti_aliasing/quality/msaa_3d=2
+anti_aliasing/quality/screen_space_aa=1
+environment/defaults/default_clear_color=Color(0.211765, 0.239216, 0.290196, 1)

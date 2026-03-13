@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://region_native_starter"]
+
+[ext_resource type="Script" path="res://scripts/streaming/region_manager.gd" id="1_region_manager"]
+
+[node name="NativeStarter" type="Node3D"]
+script = ExtResource("1_region_manager")
+region_name = "Native Starter"
+region_bounds = AABB(Vector3(-100, -50, -75), Vector3(200, 100, 150))
+
+[node name="Terrain" type="Node3D" parent="."]
+
+[node name="Ground" type="MeshInstance3D" parent="Terrain"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Terrain/Ground"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Ground/StaticBody3D"]
+shape = SubResource("WorldBoundaryShape3D_ground")
+
+[node name="Landmarks" type="Node3D" parent="."]
+
+[node name="HearthrootSpawn" type="Marker3D" parent="Landmarks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="ShellmoundHub" type="Marker3D" parent="Landmarks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, 0)
+
+[node name="BreathingHoles" type="Marker3D" parent="Landmarks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, -5, 40)
+
+[node name="WaymarkerVista" type="Marker3D" parent="Landmarks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 8, 0)
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="Systems" type="Node3D" parent="."]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(200, 150)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
+plane = Plane(0, 1, 0, 0.5)
