@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=3 uid="uid://b2lkdvcfjn1e5"]
 
-[ext_resource type="Script" path="res://scripts/regions/region_manager.gd" id="1_region_manager"]
+[ext_resource type="Script" path="res://scripts/streaming/region_manager.gd" id="1_region_manager"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
 plane = Plane(0, 1, 0, 0)
