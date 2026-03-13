@@ -1,0 +1,107 @@
+# Native Starter Vegetation - Asset Requirements List
+
+**Environment Pipeline | Project Avalon Godot**
+
+This document lists all placeholder meshes needed for the Native Starter vegetation scatter system until final art assets are ready.
+
+---
+
+## Redwood Trees (Grass Biome)
+
+| Asset Path | Placeholder Mesh | Color/Material | Notes |
+|------------|------------------|----------------|-------|
+| `assets/models/vegetation/redwood_01.obj` | **CylinderMesh** | Brown (#5D4037) | Tall, thin cylinder. Height: ~8-12m, Radius: ~0.5-0.8m. radial_segments=8 for low-poly look. |
+| `assets/models/vegetation/redwood_02.obj` | **CylinderMesh** | Brown (#4E342E) | Variant with slightly different proportions. Same height, radius ~0.6-1.0m. |
+
+**Lore Reference:** Ancient redwoods with crimson bark - sparse, massive witnesses of the wetland memory.
+
+---
+
+## Fungal Clusters (Fungal Biome)
+
+| Asset Path | Placeholder Mesh | Color/Material | Notes |
+|------------|------------------|----------------|-------|
+| `assets/models/vegetation/fungal_purple_01.obj` | **Sphere Cluster** | Purple (#9C27B0) with emission | 3-5 small SphereMesh instances grouped. Radius: 0.2-0.4m each. Emission for luminescent effect. |
+| `assets/models/vegetation/fungal_purple_02.obj` | **Sphere Cluster** | Purple (#7B1FA2) with emission | Scaled variant - slightly larger cluster arrangement. |
+| `assets/models/vegetation/fungal_orange_01.obj` | **Sphere Cluster** | Orange (#FF9800) with emission | Warm color variant for variety. Same cluster pattern. |
+
+**Lore Reference:** Fungus-dyed cloth is part of Native material culture - these represent natural dye sources from the volcanic wetlands.
+
+---
+
+## Reeds (Wetland Biome)
+
+| Asset Path | Placeholder Mesh | Color/Material | Notes |
+|------------|------------------|----------------|-------|
+| `assets/models/vegetation/reeds_tall.obj` | **Thin Cylinder** | Green (#2E7D32) | Height: 2-3m, Radius: 0.05m. Group 3-5 cylinders together at base. |
+| `assets/models/vegetation/reeds_medium.obj` | **Thin Cylinder** | Green (#388E3C) | Height: 1-2m, same radius. Shorter variant for variety. |
+
+**Lore Reference:** Reeds are central to Native wetland memory - used for fiber ties, woven materials, and shelter construction.
+
+---
+
+## Ground Cover - Ferns
+
+| Asset Path | Placeholder Mesh | Color/Material | Notes |
+|------------|------------------|----------------|-------|
+| `assets/models/vegetation/fern_small_01.obj` | **Flat Plane** | Green (#4CAF50) | Simple plane with alpha fern texture, or 3-4 small cones radiating from center. |
+| `assets/models/vegetation/fern_small_02.obj` | **Flat Plane** | Green (#43A047) | Variant arrangement or scale. |
+| `assets/models/vegetation/moss_clump.obj` | **Hemisphere/Blob** | Green (#66BB6A) | Small hemisphere or irregular blob shape for moss patches. |
+
+**Lore Reference:** Ground cover reflects the humid, volcanic soil of the ancestral wetland basin.
+
+---
+
+## Ground Cover - Debris
+
+| Asset Path | Placeholder Mesh | Color/Material | Notes |
+|------------|------------------|----------------|-------|
+| `assets/models/vegetation/fallen_branch.obj` | **Small Cylinder** | Brown (#6D4C41) | Small tapered cylinder or capsule. Length: 0.5-1.0m. |
+| `assets/models/props/rock_small_01.obj` | **BoxMesh** | Gray (#757575) | Small box, roughly 0.2-0.4m per side. |
+| `assets/models/props/rock_small_02.obj` | **SphereMesh** | Gray (#616161) | Small sphere, radius ~0.15-0.25m. |
+
+**Lore Reference:** Volcanic residue and natural debris from the Age of Ash.
+
+---
+
+## Rocks - Waymarker Overlook
+
+| Asset Path | Placeholder Mesh | Color/Material | Notes |
+|------------|------------------|----------------|-------|
+| `assets/models/props/rock_medium_01.obj` | **BoxMesh** | Gray (#78909C) | Medium size, roughly 0.8-1.2m per side. |
+| `assets/models/props/rock_medium_02.obj` | **SphereMesh** | Gray (#607D8B) | Medium sphere, radius ~0.5-0.8m. |
+
+**Lore Reference:** Weathered stone at the high overlook - markers of passage and memory.
+
+---
+
+## Quick Implementation Guide
+
+1. **Create Placeholders in Godot:**
+   - Use MeshInstance3D nodes with primitive meshes
+   - Export as `.obj` or save as Mesh resources (`.res`)
+   - Place in folder structure: `assets/models/vegetation/` and `assets/models/props/`
+
+2. **Materials:**
+   - Create StandardMaterial3D for each color
+   - Enable emission (low intensity) for fungal clusters
+   - Keep materials simple - flat colors work for placeholders
+
+3. **Testing:**
+   - Verify scatter loads without errors
+   - Check instance counts match budget
+   - Ensure no clipping with landmarks
+
+---
+
+## Priority Order for Art Team
+
+1. **HIGH:** Redwood trees (most visible, silhouette-defining)
+2. **HIGH:** Fungal clusters (unique to Native aesthetic)
+3. **MEDIUM:** Reeds (dense, fill wetland areas)
+4. **LOW:** Ground cover ferns (small, many instances)
+5. **LOW:** Rocks and debris (can use longer)
+
+---
+
+*Generated by Environment Pipeline Agent | Project Avalon Godot*

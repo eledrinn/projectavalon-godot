@@ -1,0 +1,86 @@
+{
+  "region": "native_starter",
+  "description": "Native Starter Wetland Region - Terrain3D biome configuration for the 1-5 wetland cradle experience",
+  "splatmap": "res://resources/terrain/native_starter_splat.png",
+  "heightmap": "res://resources/terrain/native_starter_height.png",
+  "world_scale": {
+    "width_meters": 200,
+    "depth_meters": 150,
+    "height_min_meters": -5,
+    "height_max_meters": 8
+  },
+  "layers": [
+    {
+      "channel": "r",
+      "name": "wetland_mud",
+      "display_name": "Wetland Mud",
+      "description": "Soggy wetland basin floor, reed beds, breathing hole depressions",
+      "albedo_texture": "res://assets/textures/terrain/wetland_mud_albedo.png",
+      "normal_texture": "res://assets/textures/terrain/wetland_mud_normal.png",
+      "roughness": 0.92,
+      "uv_scale": 4.0,
+      "priority": 1
+    },
+    {
+      "channel": "g",
+      "name": "grass",
+      "display_name": "Wetland Grass",
+      "description": "Normal ground cover, Shellmound approaches, village paths",
+      "albedo_texture": "res://assets/textures/terrain/grass_albedo.png",
+      "normal_texture": "res://assets/textures/terrain/grass_normal.png",
+      "roughness": 0.78,
+      "uv_scale": 6.0,
+      "priority": 2
+    },
+    {
+      "channel": "b",
+      "name": "fungal_growth",
+      "display_name": "Fungal Growth",
+      "description": "Strange fungal colonies around Shellmound, Woven Arch mystic zones",
+      "albedo_texture": "res://assets/textures/terrain/fungal_albedo.png",
+      "normal_texture": "res://assets/textures/terrain/fungal_normal.png",
+      "roughness": 0.65,
+      "uv_scale": 3.0,
+      "emission": {
+        "enabled": true,
+        "color": "#4a7c59",
+        "energy": 0.2
+      },
+      "priority": 3
+    },
+    {
+      "channel": "a",
+      "name": "volcanic_rock",
+      "display_name": "Volcanic Rock",
+      "description": "Cliff faces, Waymarker Vista, high elevation outcrops",
+      "albedo_texture": "res://assets/textures/terrain/rock_albedo.png",
+      "normal_texture": "res://assets/textures/terrain/rock_normal.png",
+      "roughness": 0.55,
+      "uv_scale": 2.0,
+      "priority": 4
+    }
+  ],
+  "terrain3d_settings": {
+    "storage_path": "res://terrain/native_starter_terrain.res",
+    "collision_enabled": true,
+    "collision_lod": 0,
+    "render_layers": 1,
+    "cast_shadow": true,
+    "vertex_spacing": 1.0,
+    "vertex_density": 1.0,
+    "lod_distance": [8.0, 16.0, 32.0, 64.0, 128.0],
+    "material": {
+      "shader_type": "standard",
+      "albedo_color": "#ffffff",
+      "specular": 0.5,
+      "metallic": 0.0,
+      "ao_light_affect": 0.5
+    }
+  },
+  "lore_alignment": {
+    "native_materials": ["reeds", "woven_fibers", "fungus_dyed_cloth", "volcanic_stone"],
+    "wetland_character": "humid_mineral_marbling",
+    "architectural_style": "root_embedded_organic",
+    "key_landmarks": ["hearthroot", "shellmound", "woven_arch", "breathing_holes", "waymarker"]
+  }
+}

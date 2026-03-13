@@ -1,0 +1,247 @@
+{
+  "scatter_name": "native_starter_vegetation",
+  "region": "native_starter",
+  "target_surface": "Terrain3D",
+  "description": "Vegetation scatter for Native Starter region - wetland-rooted aesthetic with fungal and redwood elements. Lore-aligned: ancient, intimate, spiritually serious.",
+  "scatter_groups": [
+    {
+      "name": "redwood_trees",
+      "description": "Ancient redwoods with crimson bark - sparse presence throughout grass areas",
+      "items": [
+        {
+          "mesh": "res://assets/models/vegetation/redwood_01.obj",
+          "weight": 0.6,
+          "placeholder": "CylinderMesh (tall, thin, radial_segments=8)"
+        },
+        {
+          "mesh": "res://assets/models/vegetation/redwood_02.obj",
+          "weight": 0.4,
+          "placeholder": "CylinderMesh (tall, thin, scaled variant)"
+        }
+      ],
+      "density": 0.01,
+      "scale_range": [0.8, 1.2],
+      "rotation_range": [-15, 15],
+      "biome_mask": "grass",
+      "avoid_radius": 5.0,
+      "avoid_landmarks": ["Hearthroot", "Shellmound", "Waymarker"],
+      "max_instances": 500,
+      "lore_note": "Ancient, massive trees with crimson bark - sacred witnesses of the wetland memory"
+    },
+    {
+      "name": "fungal_clusters",
+      "description": "Luminescent fungal growths - dense around Shellmound, medium density in fungal biome",
+      "items": [
+        {
+          "mesh": "res://assets/models/vegetation/fungal_purple_01.obj",
+          "weight": 0.5,
+          "placeholder": "SphereMesh cluster (3-5 small spheres, purple emission)"
+        },
+        {
+          "mesh": "res://assets/models/vegetation/fungal_purple_02.obj",
+          "weight": 0.3,
+          "placeholder": "SphereMesh cluster (scaled variant, purple emission)"
+        },
+        {
+          "mesh": "res://assets/models/vegetation/fungal_orange_01.obj",
+          "weight": 0.2,
+          "placeholder": "SphereMesh cluster (orange emission)"
+        }
+      ],
+      "density": 0.05,
+      "scale_range": [0.5, 1.0],
+      "rotation_range": [0, 360],
+      "biome_mask": "fungal",
+      "avoid_radius": 2.0,
+      "cluster_centers": [
+        {
+          "name": "Shellmound",
+          "position": [80, 0, 0],
+          "radius": 20.0,
+          "density_multiplier": 1.5
+        }
+      ],
+      "avoid_landmarks": ["Hearthroot"],
+      "max_instances": 2000,
+      "lore_note": "Fungus-dyed cloth is part of Native material culture - these clusters represent natural dye sources"
+    },
+    {
+      "name": "reeds",
+      "description": "Tall wetland reeds - dense in water/depression areas, especially Breathing Holes",
+      "items": [
+        {
+          "mesh": "res://assets/models/vegetation/reeds_tall.obj",
+          "weight": 0.7,
+          "placeholder": "Thin CylinderMesh (height=2-3m, green material)"
+        },
+        {
+          "mesh": "res://assets/models/vegetation/reeds_medium.obj",
+          "weight": 0.3,
+          "placeholder": "Thin CylinderMesh (height=1-2m, green material)"
+        }
+      ],
+      "density": 0.2,
+      "scale_range": [0.3, 0.8],
+      "rotation_range": [-10, 10],
+      "biome_mask": "wetland",
+      "avoid_radius": 1.0,
+      "cluster_centers": [
+        {
+          "name": "BreathingHoles",
+          "position": [90, -5, 40],
+          "radius": 15.0,
+          "density_multiplier": 1.0
+        }
+      ],
+      "avoid_landmarks": ["Hearthroot"],
+      "max_instances": 15000,
+      "lore_note": "Reeds are central to Native wetland memory - used for fiber ties, woven materials, and shelter"
+    },
+    {
+      "name": "ground_cover_ferns",
+      "description": "Small ferns and moss - scattered ground cover in all biomes",
+      "items": [
+        {
+          "mesh": "res://assets/models/vegetation/fern_small_01.obj",
+          "weight": 0.5,
+          "placeholder": "Flat plane mesh with fern texture, or small cone"
+        },
+        {
+          "mesh": "res://assets/models/vegetation/fern_small_02.obj",
+          "weight": 0.3,
+          "placeholder": "Flat plane mesh variant"
+        },
+        {
+          "mesh": "res://assets/models/vegetation/moss_clump.obj",
+          "weight": 0.2,
+          "placeholder": "Small hemisphere or irregular blob mesh"
+        }
+      ],
+      "density": 0.15,
+      "scale_range": [0.3, 0.6],
+      "rotation_range": [0, 360],
+      "biome_mask": "all",
+      "avoid_radius": 0.5,
+      "avoid_landmarks": ["Hearthroot"],
+      "max_instances": 8000,
+      "lore_note": "Ground cover reflects the humid, volcanic soil of the ancestral wetland basin"
+    },
+    {
+      "name": "ground_cover_debris",
+      "description": "Natural debris - fallen branches, stones, volcanic residue",
+      "items": [
+        {
+          "mesh": "res://assets/models/vegetation/fallen_branch.obj",
+          "weight": 0.4,
+          "placeholder": "Small cylinder or tapered capsule"
+        },
+        {
+          "mesh": "res://assets/models/props/rock_small_01.obj",
+          "weight": 0.4,
+          "placeholder": "Small BoxMesh or sphere (gray)"
+        },
+        {
+          "mesh": "res://assets/models/props/rock_small_02.obj",
+          "weight": 0.2,
+          "placeholder": "Small BoxMesh variant"
+        }
+      ],
+      "density": 0.08,
+      "scale_range": [0.4, 0.9],
+      "rotation_range": [0, 360],
+      "biome_mask": "all",
+      "avoid_radius": 1.0,
+      "avoid_landmarks": ["Hearthroot"],
+      "max_instances": 4000,
+      "lore_note": "Volcanic residue and natural debris from the Age of Ash"
+    },
+    {
+      "name": "rocks_waymarker",
+      "description": "Rock formations at Waymarker overlook - sparse, intentional placement",
+      "items": [
+        {
+          "mesh": "res://assets/models/props/rock_medium_01.obj",
+          "weight": 0.5,
+          "placeholder": "BoxMesh (medium size, gray material)"
+        },
+        {
+          "mesh": "res://assets/models/props/rock_medium_02.obj",
+          "weight": 0.5,
+          "placeholder": "SphereMesh (medium size, gray material)"
+        }
+      ],
+      "density": 0.02,
+      "scale_range": [0.8, 1.3],
+      "rotation_range": [0, 360],
+      "biome_mask": "rock",
+      "placement": "manual_zone",
+      "zone_center": [180, 8, 0],
+      "zone_radius": 10.0,
+      "avoid_landmarks": ["Waymarker"],
+      "avoid_radius": 3.0,
+      "max_instances": 50,
+      "lore_note": "Weathered stone at the high overlook - markers of passage and memory"
+    }
+  ],
+  "modifiers": [
+    {
+      "type": "random_distribution",
+      "description": "Base random placement across target surface"
+    },
+    {
+      "type": "avoid",
+      "target": "landmarks",
+      "radius": 5.0,
+      "description": "Clear 5m radius around all landmarks"
+    },
+    {
+      "type": "avoid",
+      "target": "Hearthroot",
+      "radius": 8.0,
+      "description": "Extended clearance for sacred space (8m)"
+    },
+    {
+      "type": "slope",
+      "min": 0,
+      "max": 45,
+      "description": "Limit placement to reasonable slopes"
+    },
+    {
+      "type": "height",
+      "min": -10,
+      "max": 50,
+      "description": "Keep within playable region bounds"
+    }
+  ],
+  "performance_budget": {
+    "total_instances_max": 30000,
+    "redwood_instances": 500,
+    "fungal_instances": 2000,
+    "reed_instances": 15000,
+    "ground_cover_ferns": 8000,
+    "ground_cover_debris": 4000,
+    "rocks_waymarker": 50
+  },
+  "landmarks": {
+    "Hearthroot": {
+      "position": [0, 0, 0],
+      "description": "Sacred shelter - NO vegetation within 8m",
+      "clearance": 8.0
+    },
+    "Shellmound": {
+      "position": [80, 0, 0],
+      "description": "Ancient burial mound - fungal cluster center",
+      "clearance": 5.0
+    },
+    "BreathingHoles": {
+      "position": [90, -5, 40],
+      "description": "Volcanic vents in depression - reed wetland area",
+      "clearance": 3.0
+    },
+    "Waymarker": {
+      "position": [180, 8, 0],
+      "description": "High overlook with standing stone - rock formations",
+      "clearance": 3.0
+    }
+  }
+}
