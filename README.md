@@ -2,7 +2,13 @@
 
 **MMORPG with seamless world, stylized alien aesthetic, classic MMO soul**
 
-This is the Godot 4.x implementation of Project Avalon. Text-based scene files (.tscn) and GDScript (.gd) enable AI agent automation.
+**⚠️ ACTIVE REPOSITORY — March 12, 2026**
+
+This is the **active** Godot 4.x implementation of Project Avalon. The UE5 repository is now legacy/frozen.
+
+Text-based scene files (.tscn) and GDScript (.gd) enable AI agent automation.
+
+**Engine Pivot:** See `ENGINE_PIVOT.md` for the complete migration rationale and studio-wide mandate.
 
 ---
 
