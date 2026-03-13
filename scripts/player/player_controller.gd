@@ -18,6 +18,11 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var current_speed: float = move_speed
 var can_move: bool = true
 
+# Health system
+@export var max_health: int = 100
+var health: int = 100
+var is_alive: bool = true
+
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	print("Player controller ready")
@@ -82,3 +87,47 @@ func disable_movement():
 
 func enable_movement():
 	can_move = true
+
+# ============================================================================
+# HEALTH / DAMAGE SYSTEM
+# ============================================================================
+func take_damage(amount: int) -> void:
+	if not is_alive:
+		return
+	
+	health -= amount
+	print("Player took ", amount, " damage. Health: ", health, "/", max_health)
+	
+	# TODO: Trigger damage visual effects, screen flash, etc.
+	
+	if health <= 0:
+		_health_depleted()
+
+func heal(amount: int) -> void:
+	if not is_alive:
+		return
+	
+	health = min(health + amount, max_health)
+	print("Player healed ", amount, ". Health: ", health, "/", max_health)
+
+func _health_depleted() -> void:
+	is_alive = false
+	print("Player has died!")
+	# TODO: Implement death/respawn logic
+	# For now, just respawn immediately at current position with full health
+	await get_tree().create_timer(2.0).timeout
+	_respawn()
+
+func _respawn() -> void:
+	health = max_health
+	is_alive = true
+	print("Player respawned. Health: ", health, "/", max_health)
+
+func get_health() -> int:
+	return health
+
+func get_max_health() -> int:
+	return max_health
+
+func get_health_percent() -> float:
+	return float(health) / float(max_health)

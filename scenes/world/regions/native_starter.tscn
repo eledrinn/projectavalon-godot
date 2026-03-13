@@ -1,6 +1,7 @@
-[gd_scene load_steps=35 format=3 uid="uid://region_native_starter"]
+[gd_scene load_steps=36 format=3 uid="uid://region_native_starter"]
 
 [ext_resource type="Script" path="res://scripts/streaming/region_manager.gd" id="1_region_manager"]
+[ext_resource type="PackedScene" uid="uid://breathing_hole_hazard" path="res://scenes/hazards/breathing_hole.tscn" id="2_breathing_hole"]
 
 [node name="NativeStarter" type="Node3D"]
 script = ExtResource("1_region_manager")
@@ -123,6 +124,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 6)
 
 [node name="SafePathNorth" type="Marker3D" parent="Landmarks/BreathingHoles"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -6)
+
+; --- BREATHING HOLE HAZARD SYSTEM ---
+[node name="BreathingHoleHazard" parent="Landmarks/BreathingHoles" instance=ExtResource("2_breathing_hole")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="Depression" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
 transform = Transform3D(6, 0, 0, 0, 1, 0, 0, 0, 4, 0, -0.5, 0)
