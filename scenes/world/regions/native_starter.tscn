@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://region_native_starter"]
+[gd_scene load_steps=35 format=3 uid="uid://region_native_starter"]
 
 [ext_resource type="Script" path="res://scripts/streaming/region_manager.gd" id="1_region_manager"]
 
@@ -7,6 +7,9 @@ script = ExtResource("1_region_manager")
 region_name = "Native Starter"
 region_bounds = AABB(Vector3(-100, -50, -75), Vector3(200, 100, 150))
 
+; ============================================================================
+; TERRAIN
+; ============================================================================
 [node name="Terrain" type="Node3D" parent="."]
 
 [node name="Ground" type="MeshInstance3D" parent="Terrain"]
@@ -18,26 +21,451 @@ mesh = SubResource("PlaneMesh_ground")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Ground/StaticBody3D"]
 shape = SubResource("WorldBoundaryShape3D_ground")
 
+; ============================================================================
+; LANDMARKS
+; ============================================================================
 [node name="Landmarks" type="Node3D" parent="."]
 
-[node name="HearthrootSpawn" type="Marker3D" parent="Landmarks"]
+; ----------------------------------------------------------------------------
+; HEARTHROOT - Spawn Area (0, 0, 0)
+; ----------------------------------------------------------------------------
+[node name="Hearthroot" type="Node3D" parent="Landmarks"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
-[node name="ShellmoundHub" type="Marker3D" parent="Landmarks"]
+[node name="SpawnPoint" type="Marker3D" parent="Landmarks/Hearthroot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="MainTrunk" type="MeshInstance3D" parent="Landmarks/Hearthroot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2, 0)
+mesh = SubResource("CylinderMesh_trunk")
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")
+
+[node name="Overhang" type="MeshInstance3D" parent="Landmarks/Hearthroot"]
+transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 0, 3.5, 0)
+mesh = SubResource("BoxMesh_overhang")
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")
+
+[node name="RootEast" type="MeshInstance3D" parent="Landmarks/Hearthroot"]
+transform = Transform3D(0.3, 0.2, 0, -0.4, 0.5, 0, 0, 0, 0.4, 2, 1.5, 0)
+mesh = SubResource("CylinderMesh_root")
+surface_material_override/0 = SubResource("StandardMaterial3D_bark")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Landmarks/Hearthroot"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/Hearthroot/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2, 0)
+shape = SubResource("CylinderShape3D_trunk")
+
+; ----------------------------------------------------------------------------
+; SHELLMOUND - Quest Hub (80, 0, 0)
+; ----------------------------------------------------------------------------
+[node name="Shellmound" type="Node3D" parent="Landmarks"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, 0)
 
-[node name="BreathingHoles" type="Marker3D" parent="Landmarks"]
+[node name="HubCenter" type="Marker3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="NPC_Spawn" type="Marker3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 2)
+
+[node name="MoundBase" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 4, 0, 1, 0)
+mesh = SubResource("CylinderMesh_mound")
+surface_material_override/0 = SubResource("StandardMaterial3D_mound")
+
+[node name="MoundTop" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+mesh = SubResource("CylinderMesh_moundtop")
+surface_material_override/0 = SubResource("StandardMaterial3D_mound")
+
+[node name="MarkerStone1" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.75, 0)
+mesh = SubResource("BoxMesh_marker")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="MarkerStone2" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(0.707, 0, 0.707, 0, 1, 0, -0.707, 0, 0.707, 3.5, 0.75, 3.5)
+mesh = SubResource("BoxMesh_marker")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="MarkerStone3" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0.75, 5)
+mesh = SubResource("BoxMesh_marker")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="MarkerStone4" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(-0.707, 0, 0.707, 0, 1, 0, -0.707, 0, -0.707, -3.5, 0.75, 3.5)
+mesh = SubResource("BoxMesh_marker")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="MarkerStone5" type="MeshInstance3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, -0, 0, -1, -5, 0.75, 0)
+mesh = SubResource("BoxMesh_marker")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Landmarks/Shellmound"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/Shellmound/StaticBody3D"]
+transform = Transform3D(4, 0, 0, 0, 1, 0, 0, 0, 4, 0, 1, 0)
+shape = SubResource("CylinderShape3D_mound")
+
+; ----------------------------------------------------------------------------
+; BREATHING HOLES - Hazard Lane (90, -5, 40)
+; ----------------------------------------------------------------------------
+[node name="BreathingHoles" type="Node3D" parent="Landmarks"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, -5, 40)
 
-[node name="WaymarkerVista" type="Marker3D" parent="Landmarks"]
+[node name="HazardCenter" type="Marker3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="SafePathSouth" type="Marker3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 6)
+
+[node name="SafePathNorth" type="Marker3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -6)
+
+[node name="Depression" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(6, 0, 0, 0, 1, 0, 0, 0, 4, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_depression")
+surface_material_override/0 = SubResource("StandardMaterial3D_hazard")
+
+[node name="Vent1" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.5, 0, 0, 0, 0.3, 0, 0, 0, 0.5, -3, 0.1, -2)
+mesh = SubResource("CylinderMesh_vent")
+surface_material_override/0 = SubResource("StandardMaterial3D_vent")
+
+[node name="Vent2" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.5, 0, 0, 0, 0.3, 0, 0, 0, 0.5, 3, 0.1, -2)
+mesh = SubResource("CylinderMesh_vent")
+surface_material_override/0 = SubResource("StandardMaterial3D_vent")
+
+[node name="Vent3" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.5, 0, 0, 0, 0.3, 0, 0, 0, 0.5, 0, 0.1, 0)
+mesh = SubResource("CylinderMesh_vent")
+surface_material_override/0 = SubResource("StandardMaterial3D_vent")
+
+[node name="Vent4" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.5, 0, 0, 0, 0.3, 0, 0, 0, 0.5, -3, 0.1, 2)
+mesh = SubResource("CylinderMesh_vent")
+surface_material_override/0 = SubResource("StandardMaterial3D_vent")
+
+[node name="Vent5" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.5, 0, 0, 0, 0.3, 0, 0, 0, 0.5, 3, 0.1, 2)
+mesh = SubResource("CylinderMesh_vent")
+surface_material_override/0 = SubResource("StandardMaterial3D_vent")
+
+[node name="SafePathMarker1" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.3, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0, 0.2, 4)
+mesh = SubResource("CylinderMesh_safe")
+surface_material_override/0 = SubResource("StandardMaterial3D_safe")
+
+[node name="SafePathMarker2" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.3, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0, 0.2, 2)
+mesh = SubResource("CylinderMesh_safe")
+surface_material_override/0 = SubResource("StandardMaterial3D_safe")
+
+[node name="SafePathMarker3" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.3, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0, 0.2, -2)
+mesh = SubResource("CylinderMesh_safe")
+surface_material_override/0 = SubResource("StandardMaterial3D_safe")
+
+[node name="SafePathMarker4" type="MeshInstance3D" parent="Landmarks/BreathingHoles"]
+transform = Transform3D(0.3, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0, 0.2, -4)
+mesh = SubResource("CylinderMesh_safe")
+surface_material_override/0 = SubResource("StandardMaterial3D_safe")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Landmarks/BreathingHoles"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/BreathingHoles/StaticBody3D"]
+transform = Transform3D(6, 0, 0, 0, 1, 0, 0, 0, 4, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_depression")
+
+; ----------------------------------------------------------------------------
+; WAYMARKER VISTA - Promise Point (180, 8, 0)
+; ----------------------------------------------------------------------------
+[node name="Waymarker" type="Node3D" parent="Landmarks"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 8, 0)
 
+[node name="VistaPoint" type="Marker3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Ledge" type="MeshInstance3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(3, 0, 0, 0, 1, 0, 0, 0, 2, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_ledge")
+surface_material_override/0 = SubResource("StandardMaterial3D_rock")
+
+[node name="StoneMarker" type="MeshInstance3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -1)
+mesh = SubResource("BoxMesh_waymarker")
+surface_material_override/0 = SubResource("StandardMaterial3D_waymarker")
+
+[node name="MarkerTop" type="MeshInstance3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(0.6, 0, 0, 0, 0.3, 0, 0, 0, 0.6, 0, 2.15, -1)
+mesh = SubResource("CylinderMesh_accent")
+surface_material_override/0 = SubResource("StandardMaterial3D_accent")
+
+[node name="StepStone1" type="MeshInstance3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(0.8, 0, 0, 0, 0.5, 0, 0, 0, 0.8, 4, -6, 2)
+mesh = SubResource("CylinderMesh_step")
+surface_material_override/0 = SubResource("StandardMaterial3D_rock")
+
+[node name="StepStone2" type="MeshInstance3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(0.8, 0, 0, 0, 0.5, 0, 0, 0, 0.8, 3, -4, 1)
+mesh = SubResource("CylinderMesh_step")
+surface_material_override/0 = SubResource("StandardMaterial3D_rock")
+
+[node name="StepStone3" type="MeshInstance3D" parent="Landmarks/Waymarker"]
+transform = Transform3D(0.8, 0, 0, 0, 0.5, 0, 0, 0, 0.8, 2, -2, 0)
+mesh = SubResource("CylinderMesh_step")
+surface_material_override/0 = SubResource("StandardMaterial3D_rock")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Landmarks/Waymarker"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/Waymarker/StaticBody3D"]
+transform = Transform3D(3, 0, 0, 0, 1, 0, 0, 0, 2, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_ledge")
+
+; ----------------------------------------------------------------------------
+; WOVEN ARCH - Departure Threshold (130, 2, -30)
+; ----------------------------------------------------------------------------
+[node name="WovenArch" type="Node3D" parent="Landmarks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 2, -30)
+
+[node name="RitualCenter" type="Marker3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+
+[node name="PillarLeft" type="MeshInstance3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(0.8, 0, 0, 0, 2.5, 0, 0, 0, 0.8, -2, 1.25, 0)
+mesh = SubResource("CylinderMesh_arch")
+surface_material_override/0 = SubResource("StandardMaterial3D_arch")
+
+[node name="PillarRight" type="MeshInstance3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(0.8, 0, 0, 0, 2.5, 0, 0, 0, 0.8, 2, 1.25, 0)
+mesh = SubResource("CylinderMesh_arch")
+surface_material_override/0 = SubResource("StandardMaterial3D_arch")
+
+[node name="Crossbeam" type="MeshInstance3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(2.5, 0, 0, 0, 0.4, 0, 0, 0, 0.6, 0, 2.7, 0)
+mesh = SubResource("BoxMesh_beam")
+surface_material_override/0 = SubResource("StandardMaterial3D_arch")
+
+[node name="RitualStone1" type="MeshInstance3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(0.5, 0, 0, 0, 0.6, 0, 0, 0, 0.5, -3, 0.3, 4)
+mesh = SubResource("CylinderMesh_ritual")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="RitualStone2" type="MeshInstance3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(0.5, 0, 0, 0, 0.6, 0, 0, 0, 0.5, 0, 0.3, 5)
+mesh = SubResource("CylinderMesh_ritual")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="RitualStone3" type="MeshInstance3D" parent="Landmarks/WovenArch"]
+transform = Transform3D(0.5, 0, 0, 0, 0.6, 0, 0, 0, 0.5, 3, 0.3, 4)
+mesh = SubResource("CylinderMesh_ritual")
+surface_material_override/0 = SubResource("StandardMaterial3D_stone")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Landmarks/WovenArch"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/WovenArch/StaticBody3D"]
+transform = Transform3D(0.8, 0, 0, 0, 2.5, 0, 0, 0, 0.8, -2, 1.25, 0)
+shape = SubResource("CylinderShape3D_arch")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Landmarks/WovenArch/StaticBody3D"]
+transform = Transform3D(0.8, 0, 0, 0, 2.5, 0, 0, 0, 0.8, 2, 1.25, 0)
+shape = SubResource("CylinderShape3D_arch")
+
+; ============================================================================
+; PROPS
+; ============================================================================
 [node name="Props" type="Node3D" parent="."]
 
+[node name="ReedBundle1" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(0.3, 0, 0, 0, 0.8, 0, 0, 0, 0.3, 10, 0, 10)
+mesh = SubResource("CylinderMesh_reed")
+surface_material_override/0 = SubResource("StandardMaterial3D_reed")
+
+[node name="ReedBundle2" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(0.25, 0, 0.1, 0, 0.7, 0, -0.1, 0, 0.25, 15, 0, 12)
+mesh = SubResource("CylinderMesh_reed")
+surface_material_override/0 = SubResource("StandardMaterial3D_reed")
+
+[node name="ReedBundle3" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(0.3, 0, 0, 0, 0.9, 0, 0, 0, 0.3, 12, 0, 15)
+mesh = SubResource("CylinderMesh_reed")
+surface_material_override/0 = SubResource("StandardMaterial3D_reed")
+
+; ============================================================================
+; SYSTEMS
+; ============================================================================
 [node name="Systems" type="Node3D" parent="."]
 
+[node name="PlayerSpawn" type="Marker3D" parent="Systems"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+; ============================================================================
+; MATERIALS
+; ============================================================================
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bark"]
+albedo_color = Color(0.6, 0.25, 0.1, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mound"]
+albedo_color = Color(0.35, 0.3, 0.2, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
+albedo_color = Color(0.5, 0.5, 0.55, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hazard"]
+albedo_color = Color(0.2, 0.15, 0.1, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vent"]
+albedo_color = Color(0.1, 0.4, 0.1, 1)
+roughness = 0.5
+emission_enabled = true
+emission = Color(0.05, 0.2, 0.05, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_safe"]
+albedo_color = Color(0.2, 0.6, 0.2, 1)
+roughness = 0.6
+emission_enabled = true
+emission = Color(0.05, 0.3, 0.05, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rock"]
+albedo_color = Color(0.4, 0.38, 0.35, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_waymarker"]
+albedo_color = Color(0.55, 0.5, 0.45, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_accent"]
+albedo_color = Color(0.8, 0.7, 0.3, 1)
+roughness = 0.4
+metallic = 0.3
+emission_enabled = true
+emission = Color(0.3, 0.25, 0.05, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_arch"]
+albedo_color = Color(0.35, 0.4, 0.2, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_reed"]
+albedo_color = Color(0.4, 0.5, 0.15, 1)
+roughness = 0.7
+
+; ============================================================================
+; MESHES
+; ============================================================================
 [sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
 size = Vector2(200, 150)
 
+[sub_resource type="CylinderMesh" id="CylinderMesh_trunk"]
+top_radius = 2.0
+bottom_radius = 2.5
+height = 6.0
+radial_segments = 12
+
+[sub_resource type="BoxMesh" id="BoxMesh_overhang"]
+size = Vector3(6, 1, 4)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_root"]
+top_radius = 0.4
+bottom_radius = 0.6
+height = 4.0
+radial_segments = 8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_mound"]
+top_radius = 1.0
+bottom_radius = 4.0
+height = 2.0
+radial_segments = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_moundtop"]
+top_radius = 2.0
+bottom_radius = 2.0
+height = 0.5
+radial_segments = 16
+
+[sub_resource type="BoxMesh" id="BoxMesh_marker"]
+size = Vector3(0.4, 1.5, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_depression"]
+size = Vector3(12, 2, 8)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vent"]
+top_radius = 0.5
+bottom_radius = 0.5
+height = 0.2
+radial_segments = 8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_safe"]
+top_radius = 0.15
+bottom_radius = 0.2
+height = 1.0
+radial_segments = 6
+
+[sub_resource type="BoxMesh" id="BoxMesh_ledge"]
+size = Vector3(6, 2, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_waymarker"]
+size = Vector3(0.6, 2, 0.4)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_accent"]
+top_radius = 0.3
+bottom_radius = 0.3
+height = 0.3
+radial_segments = 6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_step"]
+top_radius = 0.4
+bottom_radius = 0.5
+height = 1.0
+radial_segments = 8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_arch"]
+top_radius = 0.7
+bottom_radius = 0.9
+height = 5.0
+radial_segments = 10
+
+[sub_resource type="BoxMesh" id="BoxMesh_beam"]
+size = Vector3(5, 0.8, 1.2)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ritual"]
+top_radius = 0.3
+bottom_radius = 0.4
+height = 1.2
+radial_segments = 6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_reed"]
+top_radius = 0.1
+bottom_radius = 0.15
+height = 1.0
+radial_segments = 5
+
+; ============================================================================
+; COLLISION SHAPES
+; ============================================================================
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
 plane = Plane(0, 1, 0, 0.5)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_trunk"]
+height = 6.0
+radius = 2.5
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_mound"]
+height = 2.0
+radius = 4.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_depression"]
+size = Vector3(12, 2, 8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ledge"]
+size = Vector3(6, 2, 4)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_arch"]
+height = 5.0
+radius = 0.9
