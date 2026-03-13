@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://region_native_starter"]
+[gd_scene load_steps=37 format=3 uid="uid://region_native_starter"]
 
 [ext_resource type="Script" path="res://scripts/streaming/region_manager.gd" id="1_region_manager"]
 [ext_resource type="PackedScene" uid="uid://breathing_hole_hazard" path="res://scenes/hazards/breathing_hole.tscn" id="2_breathing_hole"]
