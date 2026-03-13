@@ -1,348 +1,190 @@
 class_name BreathingHole
 extends Area3D
 
-## BreathingHole
+## BreathingHole V2
 ## Environmental hazard system for Project Avalon - Native Starter region
-## Gas vent that cycles through DORMANT → WARNING → ACTIVE → DISSIPATE states
-## Location: BreathingHoles landmark at (90, -5, 40)
-##
-## Agent Output Protocol Header:
-## | Field | Value |
-## |-------|-------|
-## | **System** | Breathing Hole Hazard |
-## | **Status** | Implemented |
-## | **Location** | scenes/hazards/breathing_hole.tscn |
-## | **Spec Ref** | Native_Starter_Blockout_Spec_v1.md §5.1 |
-
-# ============================================================================
-# SIGNALS
-# ============================================================================
-signal state_changed(new_state: HazardState, old_state: HazardState)
-signal player_entered_hazard(player: Node3D)
-signal player_exited_hazard(player: Node3D)
-signal player_damaged(player: Node3D, damage: int)
-
-# ============================================================================
-# ENUMS
-# ============================================================================
-enum HazardState {
-	DORMANT,    # Safe phase - gentle bubbling
-	WARNING,    # Telegraph phase - visual/audio warning
-	ACTIVE,     # Danger phase - gas eruption, damage dealt
-	DISSIPATE   # Cooldown phase - gas fading
-}
+## Cycles through DORMANT → WARNING → ACTIVE → DISSIPATE states
+## Following Godot Implementation Doctrine v1 - SIMPLE is better than complex
+## Spec Ref: Native_Starter_Blockout_Spec_v1.md §5.1
 
 # ============================================================================
 # EXPORTS - Configurable timing and damage
 # ============================================================================
-@export_group("Timing (seconds)")
-@export var dormant_duration: float = 4.0   # 4s safe window
-@export var warning_duration: float = 1.0   # 1s telegraph
-@export var active_duration: float = 3.0    # 3s danger window
-@export var dissipate_duration: float = 2.0 # 2s cooldown
-
-@export_group("Damage")
-@export var damage_per_tick: int = 5        # 5 HP per tick
-@export var damage_tick_rate: float = 1.0   # 1 tick per second
-
-@export_group("Safe Path")
-@export var safe_path_width: float = 2.0    # 2m wide safe corridor
-@export var safe_path_debug: bool = false   # Visualize safe path
-
-@export_group("Visuals")
-@export var dormant_color: Color = Color(0.1, 0.4, 0.1, 1.0)      # Green
-@export var warning_color: Color = Color(0.8, 0.6, 0.1, 1.0)      # Yellow/Orange
-@export var active_color: Color = Color(0.6, 0.2, 0.1, 1.0)       # Red/Dark
-@export var dissipate_color: Color = Color(0.3, 0.3, 0.3, 1.0)    # Gray
-
-# ============================================================================
-# NODES
-# ============================================================================
-@onready var hazard_zone: CollisionShape3D = $HazardZone
-@onready var visual_indicator: MeshInstance3D = $VisualIndicator
-@onready var vent_meshes: Node3D = $VentMeshes
-@onready var safe_path_marker: MeshInstance3D = $SafePathMarker
-@onready var state_timer: Timer = $StateTimer
-@onready var damage_timer: Timer = $DamageTimer
-
-# ============================================================================
-# STATE
-# ============================================================================
-var current_state: HazardState = HazardState.DORMANT
-var players_in_hazard: Dictionary = {}  # player_node -> {on_safe_path: bool}
-var cycle_count: int = 0
-
-# Hazard zone dimensions (matches spec: 12m x 8m depression)
-var hazard_size: Vector3 = Vector3(12.0, 2.0, 8.0)
-
-# ============================================================================
-# LIFECYCLE
-# ============================================================================
-func _ready():
-	_setup_collision()
-	_setup_visuals()
-	_start_cycle()
-	print("BreathingHole initialized at ", global_position, " - State: DORMANT")
-
-func _setup_collision():
-	# Connect signals for player detection
-	body_entered.connect(_on_body_entered)
-	body_exited.connect(_on_body_exited)
-	
-	# Configure hazard zone collision
-	if hazard_zone and hazard_zone.shape is BoxShape3D:
-		var box_shape = hazard_zone.shape as BoxShape3D
-		box_shape.size = hazard_size
-
-func _setup_visuals():
-	_update_visuals_for_state(HazardState.DORMANT)
-	
-	# Hide safe path marker unless debugging
-	if safe_path_marker:
-		safe_path_marker.visible = safe_path_debug
-
-func _start_cycle():
-	_transition_to(HazardState.DORMANT)
+@export var damage_per_tick: int = 5
+@export var dormant_duration: float = 4.0
+@export var warning_duration: float = 1.0
+@export var active_duration: float = 3.0
+@export var dissipate_duration: float = 2.0
 
 # ============================================================================
 # STATE MACHINE
 # ============================================================================
-func _transition_to(new_state: HazardState):
-	var old_state = current_state
+enum State {DORMANT, WARNING, ACTIVE, DISSIPATE}
+var current_state: State = State.DORMANT
+
+# ============================================================================
+# SIGNALS
+# ============================================================================
+signal state_changed(new_state: State)
+signal player_damaged(amount: int)
+signal visual_color_changed(color: Color)
+
+# ============================================================================
+# INTERNAL STATE
+# ============================================================================
+var _state_timer: Timer
+var _damage_timer: Timer
+var _players_in_zone: Array[Node3D] = []
+
+# Color values for each state (RGB 0.0-1.0)
+var _state_colors: Dictionary = {
+	State.DORMANT: Color(0.2, 0.6, 0.3, 1.0),    # Green - safe
+	State.WARNING: Color(0.9, 0.7, 0.1, 1.0),    # Yellow - warning
+	State.ACTIVE: Color(0.8, 0.2, 0.1, 1.0),     # Red - danger
+	State.DISSIPATE: Color(0.4, 0.4, 0.4, 1.0)   # Gray - fading
+}
+
+# ============================================================================
+# LIFECYCLE
+# ============================================================================
+func _ready() -> void:
+	# Create and configure state timer
+	_state_timer = Timer.new()
+	_state_timer.one_shot = true
+	add_child(_state_timer)
+	_state_timer.timeout.connect(_on_state_timer_timeout)
+	
+	# Create and configure damage timer
+	_damage_timer = Timer.new()
+	_damage_timer.wait_time = 1.0  # 1 tick per second
+	add_child(_damage_timer)
+	_damage_timer.timeout.connect(_on_damage_tick)
+	
+	# Connect body detection signals
+	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
+	
+	# Start the cycle
+	_transition_to(State.DORMANT)
+
+func _exit_tree() -> void:
+	# Clean up timers to prevent issues
+	if _state_timer:
+		_state_timer.stop()
+	if _damage_timer:
+		_damage_timer.stop()
+
+# ============================================================================
+# STATE MACHINE LOGIC
+# ============================================================================
+func _transition_to(new_state: State) -> void:
 	current_state = new_state
+	state_changed.emit(new_state)
+	visual_color_changed.emit(_state_colors[new_state])
+	_handle_state_entry(new_state)
 	
-	# Update visuals
-	_update_visuals_for_state(new_state)
-	
-	# Set timer for next state
-	var duration = _get_duration_for_state(new_state)
-	state_timer.wait_time = duration
-	state_timer.one_shot = true
-	state_timer.timeout.connect(_on_state_timer_timeout, CONNECT_ONE_SHOT)
-	state_timer.start()
-	
-	# Handle state-specific logic
-	_match_state(new_state, old_state)
-	
-	# Emit signal
-	state_changed.emit(new_state, old_state)
+	var duration: float = _get_duration_for_state(new_state)
+	_state_timer.start(duration)
 
-func _match_state(new_state: HazardState, old_state: HazardState):
-	match new_state:
-		HazardState.DORMANT:
-			print("BreathingHole: DORMANT - Safe to traverse")
-			_stop_damage()
-			
-		HazardState.WARNING:
-			print("BreathingHole: WARNING - Gas building up!")
-			_stop_damage()
-			# TODO: Play warning audio cue (rising tone)
-			
-		HazardState.ACTIVE:
-			print("BreathingHole: ACTIVE - Toxic gas eruption!")
-			_start_damage()
-			# TODO: Play active audio (hiss + whoosh)
-			
-		HazardState.DISSIPATE:
-			print("BreathingHole: DISSIPATE - Gas clearing")
-			_stop_damage()
-			cycle_count += 1
-
-func _get_duration_for_state(state: HazardState) -> float:
+func _get_duration_for_state(state: State) -> float:
 	match state:
-		HazardState.DORMANT: return dormant_duration
-		HazardState.WARNING: return warning_duration
-		HazardState.ACTIVE: return active_duration
-		HazardState.DISSIPATE: return dissipate_duration
+		State.DORMANT: return dormant_duration
+		State.WARNING: return warning_duration
+		State.ACTIVE: return active_duration
+		State.DISSIPATE: return dissipate_duration
 	return 1.0
 
-func _get_next_state(state: HazardState) -> HazardState:
+func _get_next_state(state: State) -> State:
 	match state:
-		HazardState.DORMANT: return HazardState.WARNING
-		HazardState.WARNING: return HazardState.ACTIVE
-		HazardState.ACTIVE: return HazardState.DISSIPATE
-		HazardState.DISSIPATE: return HazardState.DORMANT
-	return HazardState.DORMANT
+		State.DORMANT: return State.WARNING
+		State.WARNING: return State.ACTIVE
+		State.ACTIVE: return State.DISSIPATE
+		State.DISSIPATE: return State.DORMANT
+	return State.DORMANT
 
-func _on_state_timer_timeout():
-	var next_state = _get_next_state(current_state)
+func _on_state_timer_timeout() -> void:
+	var next_state: State = _get_next_state(current_state)
 	_transition_to(next_state)
-
-# ============================================================================
-# VISUAL FEEDBACK
-# ============================================================================
-func _update_visuals_for_state(state: HazardState):
-	var target_color = _get_color_for_state(state)
-	
-	# Update main visual indicator
-	if visual_indicator:
-		var material = StandardMaterial3D.new()
-		material.albedo_color = target_color
-		material.emission_enabled = true
-		material.emission = target_color * 0.5
-		
-		if state == HazardState.ACTIVE:
-			material.emission_energy_multiplier = 2.0
-			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			material.albedo_color.a = 0.7
-		elif state == HazardState.WARNING:
-			material.emission_energy_multiplier = 1.5
-		else:
-			material.emission_energy_multiplier = 0.3
-		
-		visual_indicator.material_override = material
-	
-	# Update vent mesh colors
-	if vent_meshes:
-		for vent in vent_meshes.get_children():
-			if vent is MeshInstance3D:
-				var vent_material = StandardMaterial3D.new()
-				vent_material.albedo_color = target_color.darkened(0.3)
-				vent_material.emission_enabled = true
-				vent_material.emission = target_color * 0.3
-				
-				if state == HazardState.ACTIVE:
-					vent_material.emission_energy_multiplier = 3.0
-				elif state == HazardState.WARNING:
-					vent_material.emission_energy_multiplier = 1.5
-				else:
-					vent_material.emission_energy_multiplier = 0.5
-				
-				vent.material_override = vent_material
-
-func _get_color_for_state(state: HazardState) -> Color:
-	match state:
-		HazardState.DORMANT: return dormant_color
-		HazardState.WARNING: return warning_color
-		HazardState.ACTIVE: return active_color
-		HazardState.DISSIPATE: return dissipate_color
-	return Color.WHITE
 
 # ============================================================================
 # DAMAGE SYSTEM
 # ============================================================================
-func _start_damage():
-	# Start dealing damage to players in hazard zone
-	damage_timer.wait_time = damage_tick_rate
-	damage_timer.timeout.connect(_on_damage_tick, CONNECT_ONE_SHOT)
-	damage_timer.start()
-
-func _stop_damage():
-	# Stop damage timer
-	if damage_timer.is_connected("timeout", _on_damage_tick):
-		damage_timer.timeout.disconnect(_on_damage_tick)
-	damage_timer.stop()
-
-func _on_damage_tick():
-	if current_state != HazardState.ACTIVE:
+func _on_damage_tick() -> void:
+	if current_state != State.ACTIVE:
 		return
 	
-	# Deal damage to all players in hazard (unless on safe path)
-	for player in players_in_hazard.keys():
-		var player_data = players_in_hazard[player]
-		if not player_data.on_safe_path:
-			_apply_damage(player)
-	
-	# Continue ticking if still active
-	if current_state == HazardState.ACTIVE:
-		damage_timer.timeout.connect(_on_damage_tick, CONNECT_ONE_SHOT)
-		damage_timer.start()
+	# Deal damage to all players in zone
+	for player: Node3D in _players_in_zone:
+		_apply_damage_to_player(player)
 
-func _apply_damage(player: Node3D):
-	# Check if player has health system
+func _apply_damage_to_player(player: Node3D) -> void:
 	if player.has_method("take_damage"):
 		player.take_damage(damage_per_tick)
-		player_damaged.emit(player, damage_per_tick)
-		print("BreathingHole dealt ", damage_per_tick, " damage to ", player.name)
-	elif player.has_method("apply_damage"):
-		player.apply_damage(damage_per_tick)
-		player_damaged.emit(player, damage_per_tick)
-		print("BreathingHole dealt ", damage_per_tick, " damage to ", player.name)
-	else:
-		# Fallback: try to access health property directly
-		if "health" in player:
-			player.health -= damage_per_tick
-			player_damaged.emit(player, damage_per_tick)
-			print("BreathingHole dealt ", damage_per_tick, " damage to ", player.name)
+		player_damaged.emit(damage_per_tick)
+	elif "health" in player and player.health is int:
+		player.health -= damage_per_tick
+		player_damaged.emit(damage_per_tick)
+
+func _start_damage() -> void:
+	_damage_timer.start()
+	# Immediate first tick
+	_on_damage_tick()
+
+func _stop_damage() -> void:
+	_damage_timer.stop()
 
 # ============================================================================
-# SAFE PATH DETECTION
+# STATE HANDLERS
 # ============================================================================
-func _is_on_safe_path(player: Node3D) -> bool:
-	# Safe path runs N-S through the center of the hazard zone
-	# Width: safe_path_width (default 2m)
-	# The safe path is the center X-axis strip along the Z-axis
-	
-	var local_pos = to_local(player.global_position)
-	
-	# Safe path is centered on X=0, runs full length of Z
-	# Check if player is within safe_path_width/2 of center X
-	var half_width = safe_path_width / 2.0
-	
-	return abs(local_pos.x) <= half_width
+func _handle_state_dormant() -> void:
+	_stop_damage()
 
-func _update_player_safe_path_status(player: Node3D):
-	if player in players_in_hazard:
-		players_in_hazard[player].on_safe_path = _is_on_safe_path(player)
+func _handle_state_warning() -> void:
+	_stop_damage()
+
+func _handle_state_active() -> void:
+	_start_damage()
+
+func _handle_state_dissipate() -> void:
+	_stop_damage()
+
+func _handle_state_entry(state: State) -> void:
+	match state:
+		State.DORMANT: _handle_state_dormant()
+		State.WARNING: _handle_state_warning()
+		State.ACTIVE: _handle_state_active()
+		State.DISSIPATE: _handle_state_dissipate()
 
 # ============================================================================
 # PLAYER DETECTION
 # ============================================================================
-func _on_body_entered(body: Node3D):
-	# Check if this is a player
-	if body.is_in_group("player") or body.name == "Player" or body is CharacterBody3D:
-		players_in_hazard[body] = {
-			on_safe_path = _is_on_safe_path(body)
-		}
-		player_entered_hazard.emit(body)
-		print("Player entered BreathingHole hazard: ", body.name)
+func _on_body_entered(body: Node3D) -> void:
+	if body.is_in_group("player") or body.name == "Player":
+		if not body in _players_in_zone:
+			_players_in_zone.append(body)
 
-func _on_body_exited(body: Node3D):
-	if body in players_in_hazard:
-		players_in_hazard.erase(body)
-		player_exited_hazard.emit(body)
-		print("Player exited BreathingHole hazard: ", body.name)
-
-func _physics_process(_delta):
-	# Update safe path status for all players in hazard
-	for player in players_in_hazard.keys():
-		_update_player_safe_path_status(player)
+func _on_body_exited(body: Node3D) -> void:
+	if body in _players_in_zone:
+		_players_in_zone.erase(body)
 
 # ============================================================================
 # PUBLIC API
 # ============================================================================
-func get_current_state() -> HazardState:
+func get_current_state() -> State:
 	return current_state
 
 func get_current_state_name() -> String:
 	match current_state:
-		HazardState.DORMANT: return "DORMANT"
-		HazardState.WARNING: return "WARNING"
-		HazardState.ACTIVE: return "ACTIVE"
-		HazardState.DISSIPATE: return "DISSIPATE"
+		State.DORMANT: return "DORMANT"
+		State.WARNING: return "WARNING"
+		State.ACTIVE: return "ACTIVE"
+		State.DISSIPATE: return "DISSIPATE"
 	return "UNKNOWN"
 
-func is_player_in_hazard(player: Node3D) -> bool:
-	return player in players_in_hazard
-
-func is_player_on_safe_path(player: Node3D) -> bool:
-	if player in players_in_hazard:
-		return players_in_hazard[player].on_safe_path
-	return false
-
-func force_state(new_state: HazardState):
-	"""For testing: force hazard into specific state"""
-	state_timer.stop()
+func force_state(new_state: State) -> void:
+	"""Force hazard into specific state (for testing)"""
+	_state_timer.stop()
 	_transition_to(new_state)
 
-func reset_cycle():
-	"""Reset hazard to beginning of cycle"""
-	cycle_count = 0
-	state_timer.stop()
-	_transition_to(HazardState.DORMANT)
-
-func get_cycle_count() -> int:
-	return cycle_count
-
-func get_players_in_hazard() -> Array:
-	return players_in_hazard.keys()
+func get_state_color(state: State) -> Color:
+	return _state_colors.get(state, Color.WHITE)
