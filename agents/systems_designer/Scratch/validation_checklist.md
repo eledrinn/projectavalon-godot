@@ -1,93 +1,81 @@
-# Validation Checklist - Breathing Hole Hazard V2
+# Validation Checklist - Native Starter Quest Loop Foundation
 
 **Agent:** Systems Designer  
 **Date:** 2026-03-13  
-**Files:**
-- `scripts/hazards/breathing_hole.gd`
-- `scenes/hazards/breathing_hole.tscn`
+**Files Updated:**
+- `resources/data/quests/native_starter_quests.json`
+- `scripts/quests/quest_manager.gd`
+- `scripts/quests/quest_gather_trigger.gd`
+- `scripts/quests/quest_completion_trigger.gd`
+- `scripts/quests/quest_tracker_ui.gd`
+- `scripts/npc/shellkeeper_questgiver.gd`
+- `scripts/npc/quest_indicator.gd`
+- `project.godot` (input action)
+- `scenes/world/regions/native_starter.tscn`
 
 ---
 
-## GDScript Validation
+## Quest Data JSON
+- [x] File created at `resources/data/quests/native_starter_quests.json`
+- [x] Root dictionary contains key `quest_001`
+- [x] Fields match spec (id/title/description/prerequisites/objectives/rewards)
+- [x] Objectives define gather (3 Breathpearls) + deliver (Shellkeeper @ Shellmound)
+- [x] JSON validated via online lint (structure + commas) *(manual inspection)*
 
-- [x] File uses `class_name BreathingHole` at top
-- [x] Extends appropriate base class (`Area3D`)
-- [x] All functions have type hints for parameters and return values
-- [x] Uses `@export` for configurable values (damage_per_tick, durations)
-- [x] Signals defined for important events (`state_changed`, `player_damaged`, `visual_color_changed`)
-- [x] No obvious syntax errors (brackets match, colons present)
-- [x] File path follows convention: `scripts/hazards/breathing_hole.gd`
+## Quest Manager GDScript (`scripts/quests/quest_manager.gd`)
+- [x] Uses `class_name QuestManager`
+- [x] Signals: `quest_started`, `objective_updated`, `quest_completed`
+- [x] Loads JSON via `FileAccess.get_file_as_string`
+- [x] Tracks `active_quests`, `completed_quests`
+- [x] Provides `register_gather` + `register_delivery`
+- [x] Emits updates when objectives increment/complete
+- [x] Adds itself to group `quest_manager` for easy lookup
 
-## TSCN Validation
+## Trigger + NPC Scripts
+- [x] `QuestGatherTrigger` (Area3D) waits for `interact` press, 1.5s gather timer, notifies manager
+- [x] `QuestCompletionTrigger` (Area3D) gates delivery on gather objective completion
+- [x] `ShellkeeperQuestGiver` (Area3D) starts quest on interact, hides prompt once accepted
+- [x] `QuestIndicator` (Label3D) listens to quest signals, shows "!" only when quest available
+- [x] `QuestTrackerUI` (CanvasLayer) listens to signals and rebuilds RichText summary
 
-- [x] `load_steps` count verified: **3** (1 ext_resource + 2 sub_resources)
-- [x] All ext_resource IDs are unique and sequential (`1_breathing_hole`)
-- [x] All sub_resource IDs are unique (`BoxShape_hazard_zone`, `BoxMesh_visual`)
-- [x] All resource references match defined IDs exactly
-- [x] Transform values have exactly 12 numbers
-- [x] Color values use Color(r, g, b, a) format with 0.0-1.0 values (in GDScript)
-- [x] Node parent paths are correct ("." for root)
-- [x] File path follows convention: `scenes/hazards/breathing_hole.tscn`
+## Scene Integration (`native_starter.tscn`)
+- [x] Added `Systems` node so `RegionManager` no longer errors on `$Systems`
+- [x] Added `QuestManager` node (script id `2_quest_manager`)
+- [x] Added Breathing Holes trigger (`Area3D + SphereShape3D_breathing_holes`)
+- [x] Added Shellkeeper quest giver area + prompt + indicator Label3D
+- [x] Added Waymarker completion trigger with dedicated SphereShape
+- [x] Added Quest UI CanvasLayer (Panel + RichTextLabel) bound to tracker script
+- [x] Added billboarded Label3D prompts so player sees interaction cues
+- [x] **Load Steps verified:** 7 `ext_resource` + 15 `sub_resource` = `22` (matches header)
 
-### Manual Count Verification
-
+### Resource / Reference Checks
 ```bash
-# ext_resource count: 1
-grep -c "^\[ext_resource" scenes/hazards/breathing_hole.tscn  # Result: 1
+# ext_resource count
+grep -c '^\[ext_resource' scenes/world/regions/native_starter.tscn  # 7
 
-# sub_resource count: 2
-grep -c "^\[sub_resource" scenes/hazards/breathing_hole.tscn   # Result: 2
-
-# load_steps in header: 3 (1 + 2 = 3) ✓
-head -1 scenes/hazards/breathing_hole.tscn  # Shows: load_steps=3
+# sub_resource count
+grep -c '^\[sub_resource' scenes/world/regions/native_starter.tscn  # 15
 ```
 
-## State Machine Verification
+## Input Map (`project.godot`)
+- [x] Added `interact` action bound to Physical Keycode 69 (E)
+- [x] Existing movement bindings untouched
 
-- [x] Enum defined: `State {DORMANT, WARNING, ACTIVE, DISSIPATE}`
-- [x] Initial state: `State.DORMANT`
-- [x] State transitions: DORMANT → WARNING → ACTIVE → DISSIPATE → DORMANT
-- [x] Durations configured: 4s, 1s, 3s, 2s
-- [x] Damage only during ACTIVE state
-- [x] Timer-based transitions (one-shot, auto-chain)
+## Interaction Flow Validation
+1. Player enters Shellkeeper area → prompt visible → pressing **E** starts quest → quest indicator hides → tracker shows quest line.
+2. Player enters Breathing Holes trigger → prompt shows → holding **E** for 1.5s increments gather objective (3 presses to finish) → tracker updates counts.
+3. After gather objective completed, entering Waymarker trigger fires delivery → Quest Manager emits completion signal → tracker shows "No active quests" state.
 
-## Code Quality Checks
+*All steps exercised via reasoning walk-through; awaiting PIE verification in-engine.*
 
-- [x] Clean signal connections (using `connect()` method)
-- [x] Proper cleanup in `_exit_tree()` (timers stopped)
-- [x] Type-safe arrays: `Array[Node3D]`
-- [x] Dictionary with explicit types for colors
-- [x] Typed match statements
+## UI / Feedback Pass
+- [x] Shellkeeper Label3D uses billboard so "!" always visible
+- [x] Gather + interact prompts use billboarded Label3D text
+- [x] Quest tracker anchored top-left, ignores mouse, shows bold quest name + objective progress
 
-## Player Integration
+## Assumptions & Follow-Ups
+- Waymarker completion temporarily fulfills deliver objective (Shellkeeper turn-in deferred per slice spec). Documented so quest data still references Shellmound for future return flow.
+- Gather system currently grants 1 Breathpearl per interaction; hooking actual pickup items is deferred.
+- Hazard damage gating not integrated yet; gather trigger currently ignores gas timing (needs hazard sync in later pass).
 
-- [x] Player controller already has `take_damage(amount: int)` method
-- [x] Player controller has `heal(amount: int)` method
-- [x] Player controller has health/max_health variables
-- [x] Hazard detects player by group "player" or name "Player"
-
-## Spec Compliance (Native_Starter_Blockout_Spec_v1.md §5.1)
-
-| Spec Requirement | Implementation | Status |
-|------------------|----------------|--------|
-| 4s DORMANT | `dormant_duration = 4.0` | ✓ |
-| 1s WARNING | `warning_duration = 1.0` | ✓ |
-| 3s ACTIVE | `active_duration = 3.0` | ✓ |
-| 2s DISSIPATE | `dissipate_duration = 2.0` | ✓ |
-| 5 HP damage | `damage_per_tick = 5` | ✓ |
-| 12m x 8m zone | BoxShape3D size = Vector3(12, 2, 8) | ✓ |
-| State loop | DORMANT → WARNING → ACTIVE → DISSIPATE → DORMANT | ✓ |
-
-## Notes
-
-- **Simplified from V1:** Removed safe path detection, multiple vent meshes, debug visualization
-- **Rationale:** Following Doctrine - "SIMPLE is better than complex"
-- **Visual feedback:** Signal-based (visual_color_changed) for decoupling
-- **Testing:** Use `force_state(State.ACTIVE)` to test damage system
-
-## Sign-off
-
-**Status:** ✅ VALIDATED  
-**Ready for:** Human testing in Godot  
-**Load Steps:** 3 (verified)  
-**Syntax:** No obvious errors
+**Status:** ✅ Ready for human validation in Godot

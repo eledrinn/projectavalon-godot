@@ -1,6 +1,12 @@
-[gd_scene load_steps=13 format=3 uid="uid://b2lkdvcfjn1e5"]
+[gd_scene load_steps=22 format=3 uid="uid://b2lkdvcfjn1e5"]
 
 [ext_resource type="Script" path="res://scripts/streaming/region_manager.gd" id="1_region_manager"]
+[ext_resource type="Script" path="res://scripts/quests/quest_manager.gd" id="2_quest_manager"]
+[ext_resource type="Script" path="res://scripts/quests/quest_gather_trigger.gd" id="3_quest_gather_trigger"]
+[ext_resource type="Script" path="res://scripts/quests/quest_completion_trigger.gd" id="4_quest_completion_trigger"]
+[ext_resource type="Script" path="res://scripts/npc/shellkeeper_questgiver.gd" id="5_shellkeeper_questgiver"]
+[ext_resource type="Script" path="res://scripts/npc/quest_indicator.gd" id="6_quest_indicator"]
+[ext_resource type="Script" path="res://scripts/quests/quest_tracker_ui.gd" id="7_quest_tracker_ui"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ground"]
 plane = Plane(0, 1, 0, 0)
@@ -47,6 +53,16 @@ albedo_color = Color(0.3, 0.6, 0.3, 1)
 emission_enabled = true
 emission = Color(0.2, 0.5, 0.2, 1)
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_breathing_holes"]
+radius = 6.0
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_shellkeeper_trigger"]
+height = 4.0
+radius = 3.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_waymarker_trigger"]
+radius = 4.0
+
 [node name="NativeStarter" type="Node3D"]
 script = ExtResource("1_region_manager")
 
@@ -58,6 +74,11 @@ script = ExtResource("1_region_manager")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Ground/StaticBody3D"]
 shape = SubResource("WorldBoundaryShape3D_ground")
+
+[node name="Systems" type="Node3D" parent="."]
+
+[node name="QuestManager" type="Node" parent="Systems"]
+script = ExtResource("2_quest_manager")
 
 [node name="Landmarks" type="Node3D" parent="."]
 
@@ -94,6 +115,28 @@ surface_material_override/0 = SubResource("StandardMaterial3D_shellmound")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CylinderShape3D_shellmound")
 
+[node name="ShellkeeperIndicator" type="Label3D" parent="Landmarks/Shellmound"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+text = "!"
+pixel_size = 0.01
+billboard = 1
+script = ExtResource("6_quest_indicator")
+quest_key = "quest_001"
+
+[node name="ShellkeeperQuestArea" type="Area3D" parent="Landmarks/Shellmound"]
+script = ExtResource("5_shellkeeper_questgiver")
+quest_key = "quest_001"
+prompt_label_path = NodePath("PromptLabel")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/Shellmound/ShellkeeperQuestArea"]
+shape = SubResource("CylinderShape3D_shellkeeper_trigger")
+
+[node name="PromptLabel" type="Label3D" parent="Landmarks/Shellmound/ShellkeeperQuestArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+text = "Press E to help"
+pixel_size = 0.01
+billboard = 1
+
 [node name="BreathingHoles" type="Node3D" parent="Landmarks"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, -5, 40)
 
@@ -115,6 +158,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 2)
 mesh = SubResource("SphereMesh_vent")
 surface_material_override/0 = SubResource("StandardMaterial3D_vent")
 
+[node name="BreathpearlTrigger" type="Area3D" parent="Landmarks/BreathingHoles"]
+script = ExtResource("3_quest_gather_trigger")
+quest_key = "quest_001"
+prompt_label_path = NodePath("PromptLabel")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/BreathingHoles/BreathpearlTrigger"]
+shape = SubResource("SphereShape3D_breathing_holes")
+
+[node name="PromptLabel" type="Label3D" parent="Landmarks/BreathingHoles/BreathpearlTrigger"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+text = "Press E to gather Breathpearls"
+pixel_size = 0.01
+billboard = 1
+
 [node name="Waymarker" type="Node3D" parent="Landmarks"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 8, 0)
 
@@ -132,4 +189,42 @@ surface_material_override/0 = SubResource("StandardMaterial3D_waymarker")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_waymarker")
 
+[node name="WaymarkerCompletionTrigger" type="Area3D" parent="Landmarks/Waymarker"]
+script = ExtResource("4_quest_completion_trigger")
+quest_key = "quest_001"
+delivery_location = "shellmound"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Landmarks/Waymarker/WaymarkerCompletionTrigger"]
+shape = SubResource("SphereShape3D_waymarker_trigger")
+
 [node name="Props" type="Node3D" parent="."]
+
+[node name="QuestUI" type="CanvasLayer" parent="."]
+script = ExtResource("7_quest_tracker_ui")
+objectives_label_path = NodePath("PanelContainer/MarginContainer/VBoxContainer/ObjectivesLabel")
+
+[node name="PanelContainer" type="PanelContainer" parent="QuestUI"]
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 320.0
+offset_bottom = 200.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="QuestUI/PanelContainer"]
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="QuestUI/PanelContainer/MarginContainer"]
+size_flags_horizontal = 1
+size_flags_vertical = 1
+
+[node name="ObjectivesLabel" type="RichTextLabel" parent="QuestUI/PanelContainer/MarginContainer/VBoxContainer"]
+size_flags_horizontal = 1
+size_flags_vertical = 1
+bbcode_enabled = true
+autowrap_mode = 2
+text = "No active quests\nPress E near the Shellkeeper."

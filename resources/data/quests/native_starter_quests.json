@@ -1,0 +1,26 @@
+{
+  "quest_001": {
+    "id": "native_starter_001",
+    "title": "The Breath of Home",
+    "description": "Shellkeeper needs Breathpearls from the Breathing Holes.",
+    "prerequisites": [],
+    "objectives": [
+      {
+        "type": "gather",
+        "item": "breathpearl",
+        "count": 3,
+        "location": "breathing_holes"
+      },
+      {
+        "type": "deliver",
+        "target": "shellkeeper",
+        "location": "shellmound"
+      }
+    ],
+    "rewards": {
+      "xp": 100,
+      "item": "woven_pouch",
+      "unlock": "waymarker_vista"
+    }
+  }
+}

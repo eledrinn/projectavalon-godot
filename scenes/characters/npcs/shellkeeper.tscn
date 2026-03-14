@@ -1,0 +1,120 @@
+[gd_scene load_steps=13 format=3 uid="uid://shellkeepernpc01"]
+
+[ext_resource type="Script" path="res://scripts/npcs/shellkeeper.gd" id="1_shellkeeper_script"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_shellkeeper"]
+height = 2.0
+radius = 0.45
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_body"]
+top_radius = 0.35
+bottom_radius = 0.45
+height = 1.8
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
+albedo_color = Color(0.38, 0.26, 0.2, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_shawl"]
+top_radius = 0.55
+bottom_radius = 0.75
+height = 0.6
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shawl_purple"]
+albedo_color = Color(0.45, 0.22, 0.58, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_shawl_accent"]
+top_radius = 0.62
+bottom_radius = 0.82
+height = 0.22
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shawl_orange"]
+albedo_color = Color(0.96, 0.46, 0.15, 1)
+emission_enabled = true
+emission = Color(0.65, 0.28, 0.05, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_hand"]
+radius = 0.12
+height = 0.24
+radial_segments = 12
+rings = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hand"]
+albedo_color = Color(0.75, 0.12, 0.12, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_interaction"]
+radius = 2.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_indicator"]
+albedo_color = Color(1, 0.84, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.84, 0.2, 1)
+emission_energy_multiplier = 1.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_indicator"]
+radius = 0.15
+height = 0.3
+radial_segments = 10
+rings = 8
+
+[node name="Shellkeeper" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_shellkeeper_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_shellkeeper")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CylinderMesh_body")
+surface_material_override/0 = SubResource("StandardMaterial3D_body")
+
+[node name="Shawl" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+mesh = SubResource("CylinderMesh_shawl")
+surface_material_override/0 = SubResource("StandardMaterial3D_shawl_purple")
+
+[node name="ShawlAccent" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
+mesh = SubResource("CylinderMesh_shawl_accent")
+surface_material_override/0 = SubResource("StandardMaterial3D_shawl_orange")
+
+[node name="HandLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0.7, 0)
+mesh = SubResource("SphereMesh_hand")
+surface_material_override/0 = SubResource("StandardMaterial3D_hand")
+
+[node name="HandRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.7, 0)
+mesh = SubResource("SphereMesh_hand")
+surface_material_override/0 = SubResource("StandardMaterial3D_hand")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 2
+monitorable = true
+monitoring = true
+
+[node name="AreaCollisionShape" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("SphereShape3D_interaction")
+
+[node name="InteractionPrompt" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+text = "Press E to talk"
+pixel_size = 0.01
+outline_size = 6
+font_size = 42
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false
+
+[node name="QuestIndicator" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 0)
+
+[node name="IndicatorMesh" type="MeshInstance3D" parent="QuestIndicator"]
+mesh = SubResource("SphereMesh_indicator")
+surface_material_override/0 = SubResource("StandardMaterial3D_indicator")
